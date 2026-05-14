@@ -12,22 +12,11 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO="$SCRIPT_DIR"
 IDS_STRING="$1"
-ENV_FILE="${ENV_FILE:-$REPO/.env}"
 
 WALLET_NAME="${POKER44_WALLET_NAME:-sn126b}"
 SESSION_PREFIX="${POKER44_SESSION_PREFIX:-sn126b_m}"
 AXON_BASE_PORT="${POKER44_AXON_BASE_PORT:-12080}"
 VENV_BIN="${POKER44_VENV_BIN:-$REPO/.venv/bin}"
-
-if [[ -f "$ENV_FILE" ]]; then
-  set -a
-  # shellcheck disable=SC1090
-  source "$ENV_FILE"
-  set +a
-  echo "[env] Loaded $ENV_FILE"
-else
-  echo "[env] File not found, skipping: $ENV_FILE"
-fi
 
 if [[ ! -x "$VENV_BIN/python" ]]; then
   echo "ERROR: Python runtime not found at $VENV_BIN/python"
@@ -62,11 +51,7 @@ for raw_id in $(echo "$IDS_STRING" | tr ',' '\n'); do
     cd $REPO
     source $VENV_BIN/activate
     export PYTHONPATH=$REPO:\${PYTHONPATH:-}
-    export POKER44_CHUNK_SCORER=gen14heur1
-    export POKER44_GEN14_PROFILE=$REPO/models/gen14_profile.json
     echo '[runtime] HOTKEY_ID=$I'
-    echo '[runtime] CHUNK_SCORER=gen14heur1'
-    echo '[runtime] GEN14_PROFILE=$REPO/models/gen14_profile.json'
     echo '[runtime] manifest implementation hash computed in miner'
     $VENV_BIN/python -m neurons.miner \
       --netuid 126 \
